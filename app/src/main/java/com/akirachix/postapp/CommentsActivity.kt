@@ -1,59 +1,81 @@
 package com.akirachix.postapp
 
+import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.akirachix.postapp.databinding.ActivityCommentsBinding
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
+class CommentsActivity : AppCompatActivity() {
 
-    import Apiclient
-    import android.os.Bundle
-    import android.widget.Toast
-    import androidx.activity.enableEdgeToEdge
-    import androidx.appcompat.app.AppCompatActivity
-    import androidx.core.view.ViewCompat
-    import androidx.core.view.WindowInsetsCompat
-    import akirachix.io.databinding.ActivityCommentsBinding
-    import retrofit2.Call
-    import retrofit2.Callback
-    import retrofit2.Response
+    private var postId: Int = 0
+    private lateinit var binding: ActivityCommentsBinding
+    private val commentsAdapter by lazy { CommentsAdapter(emptyList()) }
 
-    class CommentsActivity : AppCompatActivity() {
-        lateinit var binding: ActivityCommentsBinding
-        var postId=0
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            binding=ActivityCommentsBinding.inflate(layoutInflater)
-            setContentView(binding.root)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityCommentsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-            if(intent.extras != null){
-                postId=intent.getIntExtra("POST_ID",0)
-                if(postId!=0){
-                    fetchPost()
-                }
-                else{
-                    Toast.makeText(this,"Post Id not found", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
-            }
-        }
+        postId = intent.extras?.getInt("POST_ID") ?: return
 
-        fun fetchPost(){
-            val apiClient=Apiclient.buildApiClient(PostApiInterface::class.java)
-            val request=apiClient.fetchPostById(postId)
-            request.enqueue(object :Callback<Post>{
-                override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                    if (response.isSuccessful) {
-                        val post = response.body()
-                        binding.tvPostTittle.text = post?.tittle
-                        binding.tvPostBody.text = post?.body
-                    }
-                    else{
-                        Toast.makeText(this@CommentsActivity,response.errorBody()?.string(),Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                override fun onFailure(p0: Call<Post>, t: Throwable) {
-                    Toast.makeText(this@CommentsActivity,t.message, Toast.LENGTH_SHORT).show()
-                }
-            })
-        }
+        setupRecyclerView()
+        fetchPost(postId)
+        fetchCommentsByPostID(postId)
     }
 
+    private fun setupRecyclerView() {
+        binding.rvComments.layoutManager = LinearLayoutManager(this)
+        binding.rvComments.adapter = commentsAdapter
+    }
+
+    private fun fetchPost(postId: Int) {
+        val apiClient = ApiClient.buildApiInterface(PostsApiInterface::class.java)
+        apiClient.fetchPostById(postId).enqueue(object : Callback<Post> {
+            override fun onResponse(call: Call<Post>, response: Response<Post>) {
+                if (response.isSuccessful) {
+                    response.body()?.let { post ->
+                        binding.tvPostTitle.text = post.title
+                        binding.tvPostBody.text = post.body
+                    } ?: showToast("Post not found")
+                } else {
+                    showToast("Error: ${response.message()}")
+                }
+            }
+
+            override fun onFailure(call: Call<Post>, t: Throwable) {
+                showToast("Failure: ${t.message}")
+            }
+        })
+    }
+
+    private fun fetchCommentsByPostID(postId: Int) {
+        val apiClient = ApiClient.buildApiInterface(PostsApiInterface::class.java)
+        apiClient.fetchCommentsByPostId(postId).enqueue(object : Callback<List<Comments>> {
+            override fun onResponse(call: Call<List<Comments>>, response: Response<List<Comments>>) {
+                if (response.isSuccessful) {
+                    val comments = response.body() ?: emptyList()
+                    if (comments.isNotEmpty()) {
+                        commentsAdapter.commentsList = comments
+                        commentsAdapter.notifyDataSetChanged()
+                    } else {
+                        showToast("No comments found")
+                    }
+                } else {
+                    showToast("Error: ${response.message()}")
+                }
+            }
+
+            override fun onFailure(call: Call<List<Comments>>, t: Throwable) {
+                showToast("Failure: ${t.message}")
+            }
+        })
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    }
 }

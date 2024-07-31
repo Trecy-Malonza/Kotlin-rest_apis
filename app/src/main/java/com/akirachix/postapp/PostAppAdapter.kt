@@ -1,44 +1,37 @@
 package com.akirachix.postapp
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
-
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import faith.io.databinding.PostListItemBinding
+import com.akirachix.postapp.databinding.PostItemViewBinding
 
-class AdapterPost(val body: List<Post>, val context:Context):RecyclerView.Adapter<PostViewHolder>(){
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        val binding=PostListItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-        return PostViewHolder(binding)
+class PostsAdapter(var postsList: List<Post>, val context: Context): RecyclerView.Adapter<PostsViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostsViewHolder {
+        val binding = PostItemViewBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+        return PostsViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
-        return body.size
+        return postsList.size
     }
 
-
-    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val body=body[position]
-        holder.binding.title.text=body.title
-        holder.binding.id.text=body.id.toString()
-        holder.binding.user.text=body.userId.toString()
-        holder.binding.body.text=body.body
-        holder.binding.clPost.setOnClickListener{
-            val intent = Intent(context,CommentsActivity::class.java)
-            intent.putExtra("POST_ID", body.id)
-            context.startActivity(intent)
+    override fun onBindViewHolder(holder: PostsViewHolder, position: Int) {
+        val post = postsList[position]
+        holder.binding.apply {
+            tvBody.text = post.body
+            tvTitle.text = post.title
+            clPost.setOnClickListener{
+                val intent = Intent(context, CommentsActivity::class.java)
+                intent.putExtra("POST_ID", post.id)
+                context.startActivity(intent)
+            }
         }
     }
 }
 
-class PostViewHolder(var binding: PostListItemBinding):RecyclerView.ViewHolder(binding.root){
+class PostsViewHolder(val binding: PostItemViewBinding) :
+    RecyclerView.ViewHolder(binding.root){
 
 }
-
