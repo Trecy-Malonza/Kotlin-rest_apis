@@ -1,6 +1,4 @@
-package com.akirachix.postapp
-
-import android.icu.text.CaseMap.Title
+package com.akirachix.postapp.model
 
 data class Post(
     var userId:Int,

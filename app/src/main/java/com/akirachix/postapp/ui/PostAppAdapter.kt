@@ -1,4 +1,4 @@
-package com.akirachix.postapp
+package com.akirachix.postapp.ui
 
 import android.content.Context
 import android.content.Intent
@@ -6,15 +6,15 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.akirachix.postapp.databinding.PostItemViewBinding
+import com.akirachix.postapp.model.Post
 
 class PostsAdapter(var postsList: List<Post>, val context: Context): RecyclerView.Adapter<PostsViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostsViewHolder {
         val binding = PostItemViewBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-        return PostsViewHolder(binding)
+    return PostsViewHolder(binding)
     }
 
-    override fun getItemCount(): Int {
-        return postsList.size
+    override fun getItemCount(): Int {        return postsList.size
     }
 
     override fun onBindViewHolder(holder: PostsViewHolder, position: Int) {
@@ -31,7 +31,5 @@ class PostsAdapter(var postsList: List<Post>, val context: Context): RecyclerVie
     }
 }
 
-class PostsViewHolder(val binding: PostItemViewBinding) :
-    RecyclerView.ViewHolder(binding.root){
-
+class PostsViewHolder(val binding: PostItemViewBinding) :    RecyclerView.ViewHolder(binding.root){
 }

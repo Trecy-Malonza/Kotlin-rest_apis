@@ -2,17 +2,14 @@ package com.akirachix.postapp
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.akirachix.postapp.databinding.ActivityCommentsBinding
 import com.akirachix.postapp.databinding.CommentsListItemBinding
+import com.akirachix.postapp.model.Comments
 
 
 class CommentsAdapter(var commentsList: List<Comments>): RecyclerView.Adapter<CommentsAdapter.CommentsViewHolder>() {
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): CommentsViewHolder {
+    override fun onCreateViewHolder(        parent: ViewGroup,        viewType: Int    ): CommentsViewHolder {
         val binding = CommentsListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return CommentsViewHolder(binding)
+    return CommentsViewHolder(binding)
     }
 
     override fun getItemCount(): Int = commentsList.size
